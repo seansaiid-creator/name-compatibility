@@ -85,18 +85,21 @@ body{
 /* 글자 행 */
 .chars-row{
   display:flex;justify-content:center;align-items:flex-end;
-  gap:7px;flex-wrap:wrap;min-height:120px;margin-bottom:20px;
+  gap:4px;flex-wrap:nowrap;min-height:110px;margin-bottom:20px;
+  overflow:hidden;
+  width:100%;
 }
 .char-item{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
   opacity:0;transform:translateY(16px);
   transition:opacity .3s,transform .3s;
+  flex:0 0 auto;
 }
 .char-item.show{opacity:1;transform:translateY(0);}
 .char-canvas-box{
-  width:56px;height:56px;
+  /* 크기는 JS에서 동적으로 설정 */
   background:rgba(255,255,255,.92);
-  border-radius:15px;
+  border-radius:12px;
   border:2px solid var(--pink-light);
   box-shadow:0 3px 12px var(--shadow);
   overflow:hidden;
@@ -106,10 +109,10 @@ body{
 .char-item.p2 .char-canvas-box{border-color:rgba(199,125,255,.55);}
 .char-canvas{display:block;}
 
-.char-count{font-family:'Gaegu',cursive;font-size:1.65rem;font-weight:700;line-height:1;}
+.char-count{font-family:'Gaegu',cursive;font-weight:700;line-height:1;}
 .char-item.p1 .char-count{color:var(--pink-deep);}
 .char-item.p2 .char-count{color:var(--purple);}
-.char-count-label{font-size:.65rem;color:var(--text-mid);}
+.char-count-label{font-size:.6rem;color:var(--text-mid);}
 
 /* 계산 캔버스 */
 .calc-card{background:rgba(255,255,255,.85);border:1.5px solid rgba(255,179,204,.4);border-radius:20px;padding:18px 10px;margin-bottom:14px;box-shadow:0 4px 16px var(--shadow);overflow:hidden;}
@@ -143,6 +146,24 @@ body{
 
 @media(max-width:360px){.form-cols{grid-template-columns:1fr;}.hero-title{font-size:1.8rem;}.main-heart{font-size:72px;}}
 </style>
+<script>
+// roundRect 폴리필 (iOS Safari 구버전 대응)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+    this.beginPath();
+    this.moveTo(x+r,y);
+    this.lineTo(x+w-r,y);
+    this.quadraticCurveTo(x+w,y,x+w,y+r);
+    this.lineTo(x+w,y+h-r);
+    this.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    this.lineTo(x+r,y+h);
+    this.quadraticCurveTo(x,y+h,x,y+h-r);
+    this.lineTo(x,y+r);
+    this.quadraticCurveTo(x,y,x+r,y);
+    this.closePath();
+  };
+}
+</script>
 </head>
 <body>
 <div class="bg-bubbles" id="bgBubbles"></div>
@@ -486,15 +507,23 @@ async function animateChars(animSeq) {
   const p1color = '#e8306a';
   const p2color = '#c77dff';
 
-  // 전체 슬롯 수 계산 (calcIdx 최대값 + 1)
   const totalSlots = animSeq.length;
 
-  // 빈 슬롯 placeholder들을 미리 생성 (calcIdx 위치 확보)
+  // 컨테이너 너비 기준으로 글자 박스 크기 동적 계산
+  const containerW = container.parentElement.clientWidth || 340;
+  const gap = 4;
+  const boxSize = Math.max(36, Math.min(54, Math.floor((containerW - gap * (totalSlots - 1) - 8) / totalSlots)));
+  const fontSize = Math.max(10, Math.floor(boxSize * 0.35));
+  const countFontSize = Math.max(1.0, boxSize * 0.026); // rem
+
+  // 빈 슬롯 placeholder 미리 생성
   const slots = [];
   for (let s = 0; s < totalSlots; s++) {
     const placeholder = document.createElement('div');
-    placeholder.style.width = '56px'; // 자리만 차지
+    placeholder.style.width = boxSize + 'px';
+    placeholder.style.height = (boxSize + 30) + 'px';
     placeholder.style.visibility = 'hidden';
+    placeholder.style.flex = '0 0 auto';
     container.appendChild(placeholder);
     slots.push(placeholder);
   }
@@ -510,11 +539,13 @@ async function animateChars(animSeq) {
 
     const box = document.createElement('div');
     box.className = 'char-canvas-box';
+    box.style.width = boxSize + 'px';
+    box.style.height = boxSize + 'px';
 
     const cvs = document.createElement('canvas');
     cvs.className = 'char-canvas';
     const dpr = window.devicePixelRatio || 1;
-    const sz = 52;
+    const sz = boxSize;
     cvs.width = sz * dpr;
     cvs.height = sz * dpr;
     cvs.style.width = sz + 'px';
@@ -526,6 +557,7 @@ async function animateChars(animSeq) {
 
     const countEl = document.createElement('div');
     countEl.className = 'char-count';
+    countEl.style.fontSize = countFontSize + 'rem';
     countEl.textContent = '0';
 
     const labelEl = document.createElement('div');
@@ -567,9 +599,16 @@ async function drawCalcCanvas(seq, strokes, steps) {
   const dpr = window.devicePixelRatio || 1;
   const W = Math.min(document.getElementById('calcCard').clientWidth - 20, 460);
   const n = steps[0].length;
-  const CELL = Math.min(44, (W - 12) / n);
-  const ROW_H = 74;
-  const H = ROW_H * steps.length + 52;
+
+  // 각 셀 너비: 숫자원 + 계산식이 겹치지 않도록 충분히 확보
+  const CELL = Math.min(52, (W - 8) / n);
+  const R_NORM = Math.max(14, Math.min(20, CELL * 0.38));  // 일반 원 반지름
+  const R_LAST = R_NORM * 1.35;                             // 마지막 원 반지름 (더 크게)
+  // 행 높이: 원 + 계산식 텍스트 영역 포함
+  const CALC_H = 36; // 계산식 텍스트 영역 높이
+  const ROW_H = R_NORM * 2 + CALC_H + 20;
+  const H = ROW_H * steps.length + 60;
+
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
   canvas.width = W * dpr;
@@ -578,121 +617,121 @@ async function drawCalcCanvas(seq, strokes, steps) {
   ctx.clearRect(0, 0, W, H);
 
   const p1c = '#e8306a', p2c = '#c77dff';
+  const numFontSize = Math.max(13, R_NORM * 0.95);
+  const calcFontSize = Math.max(11, Math.min(13, CELL * 0.24));
 
   for (let row = 0; row < steps.length; row++) {
     const nums = steps[row];
     const rN = nums.length;
     const rSX = (W - CELL * rN) / 2 + CELL / 2;
-    const y = 32 + row * ROW_H;
+    // 원의 y좌표: 계산식 영역 아래에 원이 위치
+    const circleY = row === 0
+      ? R_NORM + 10
+      : (R_NORM + 10) + row * ROW_H + CALC_H;
     const isLast = row === steps.length - 1;
+    const R = isLast ? R_LAST : R_NORM;
 
+    // ── 연결선 + 계산식 (2행 이상부터) ──
     if (row > 0) {
       const prev = steps[row - 1];
       const pN = prev.length;
       const pSX = (W - CELL * pN) / 2 + CELL / 2;
-      const prevY = y - ROW_H;
+      const prevCircleY = (R_NORM + 10) + (row - 1) * ROW_H + (row === 1 ? 0 : CALC_H);
 
       for (let i = 0; i < rN; i++) {
         playCalc();
-        // 아치 선 애니메이션
-        await drawArc(ctx, pSX + i * CELL, prevY + 20, pSX + (i + 1) * CELL, prevY + 20, rSX + i * CELL, y - 20);
 
-        // 계산식 순차 표시
+        // 아치 연결선
+        const ax1 = pSX + i * CELL;
+        const ax2 = pSX + (i + 1) * CELL;
+        const ay = prevCircleY + R_NORM;
+        const midX = rSX + i * CELL;
+        const midY = circleY - R - 6;
+        await drawArc(ctx, ax1, ay, ax2, ay, midX, midY - 4);
+
+        // 계산식: 원 위에 중앙 배치 (각 쌍의 중간 x에 표시)
         const a = prev[i], b = prev[i + 1];
         const sum = a + b;
         const rd = sum >= 10 ? Math.floor(sum / 10) + sum % 10 : sum;
-        const mx = rSX + i * CELL;
-        const baseY = y - ROW_H / 2 + 6;
+        const mx = midX;
+        // 계산식 y: 이전 원 아래 ~ 현재 원 위 사이
+        const calcY = prevCircleY + R_NORM + 14;
+        const font = `700 ${calcFontSize}px 'Gaegu', cursive`;
+        const dimColor = 'rgba(120,50,80,.65)';
 
-        const font = `600 10px 'Gaegu', cursive`;
-        const dimColor = 'rgba(100,50,80,.5)';
+        // 계산식을 한 줄로: "a+b=sum(→rd)"
+        // 한 줄로 쓰되 너비 초과 방지를 위해 콤팩트하게
+        const eqStr = sum >= 10 ? `${a}+${b}=${sum}→${rd}` : `${a}+${b}=${sum}`;
+        ctx.save();
+        ctx.font = font;
+        ctx.fillStyle = dimColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        // 배경 박스 (가독성)
+        const tw = ctx.measureText(eqStr).width + 6;
+        ctx.fillStyle = 'rgba(255,240,245,0.85)';
+        ctx.beginPath();
+        ctx.roundRect(mx - tw/2, calcY - 2, tw, calcFontSize + 6, 4);
+        ctx.fill();
+        ctx.fillStyle = sum >= 10 ? 'rgba(232,48,106,.85)' : dimColor;
+        ctx.fillText(eqStr, mx, calcY);
+        ctx.restore();
 
-        await showText(ctx, `${a}`, mx - 20, baseY, font, dimColor); await sleep(55);
-        await showText(ctx, '+', mx - 8,  baseY, font, dimColor); await sleep(55);
-        await showText(ctx, `${b}`, mx + 4,  baseY, font, dimColor); await sleep(55);
-        await showText(ctx, '=', mx + 16, baseY, font, dimColor); await sleep(55);
-        await showText(ctx, `${sum}`, mx + 28, baseY, font, dimColor); await sleep(55);
-        if (sum >= 10) {
-          await showText(ctx, `→${rd}`, mx + 44, baseY, `600 10px 'Gaegu',cursive`, 'rgba(232,48,106,.75)');
-        }
         await sleep(80);
       }
     }
 
-    // 숫자 원 그리기
+    // ── 숫자 원 그리기 ──
     for (let i = 0; i < rN; i++) {
       const x = rSX + i * CELL;
-      const r = isLast ? 24 : 18;
       const person = row === 0 ? (seq[i]?.p || 1) : 0;
 
-      ctx.save();
-      if (isLast) {
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        grad.addColorStop(0, '#ff6b9d');
-        grad.addColorStop(1, '#c9304e');
-        ctx.fillStyle = grad;
-        ctx.shadowColor = 'rgba(232,48,106,.5)';
-        ctx.shadowBlur = 20;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.fillStyle = person===1?'rgba(232,48,106,.12)':person===2?'rgba(199,125,255,.12)':'rgba(255,179,204,.15)';
-        ctx.strokeStyle = person===1?p1c:person===2?p2c:'rgba(255,107,157,.5)';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      }
-      ctx.restore();
-
-      // 숫자 팝 효과
-      ctx.save();
-      const numSize = isLast ? 18 : 14;
-      const numColor = isLast ? 'white' : (person===1?p1c:person===2?p2c:'rgba(80,30,50,.8)');
-      ctx.font = `700 ${numSize * 1.5}px 'Gaegu', cursive`;
-      ctx.fillStyle = numColor;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(nums[i], x, y);
-      ctx.restore();
-      await sleep(35);
-
-      // 팝 → 정상 크기
-      ctx.save();
-      ctx.clearRect(x - r - 2, y - r - 2, (r + 2) * 2, (r + 2) * 2);
-      // 원 다시
-      if (isLast) {
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        grad.addColorStop(0, '#ff6b9d'); grad.addColorStop(1, '#c9304e');
-        ctx.fillStyle = grad;
-        ctx.shadowColor = 'rgba(232,48,106,.5)'; ctx.shadowBlur = 20;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.fillStyle = person===1?'rgba(232,48,106,.12)':person===2?'rgba(199,125,255,.12)':'rgba(255,179,204,.15)';
-        ctx.strokeStyle = person===1?p1c:person===2?p2c:'rgba(255,107,157,.5)';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      }
-      ctx.font = `700 ${isLast?18:14}px 'Gaegu', cursive`;
-      ctx.fillStyle = isLast?'white':(person===1?p1c:person===2?p2c:'rgba(80,30,50,.8)');
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(nums[i], x, y);
-      ctx.restore();
+      // 팝 효과: 1.4배 크기로 먼저
+      drawCircleNum(ctx, x, circleY, R * 1.35, nums[i], person, isLast, p1c, p2c, numFontSize * 1.3);
+      await sleep(50);
+      // 정상 크기로
+      ctx.clearRect(x - R * 1.5, circleY - R * 1.5, R * 3, R * 3);
+      drawCircleNum(ctx, x, circleY, R, nums[i], person, isLast, p1c, p2c, isLast ? numFontSize * 1.2 : numFontSize);
 
       if (!isLast) await sleep(40);
     }
 
-    // 마지막 줄: 최종 퍼센트 (2배 크기)
+    // 마지막 줄: = 퍼센트 표시
     if (isLast) {
       await sleep(300);
       const pct = nums[0] * 10 + nums[1];
-      const endX = rSX + (rN - 1) * CELL + CELL * 0.9;
+      const lastX = rSX + (rN - 1) * CELL + R_LAST + 8;
       ctx.save();
-      ctx.font = `700 26px 'Gaegu', cursive`;
+      ctx.font = `700 ${Math.max(20, R_LAST * 1.1)}px 'Gaegu', cursive`;
       ctx.fillStyle = '#e8306a';
       ctx.textAlign = 'left';
-      ctx.shadowColor = 'rgba(232,48,106,.5)'; ctx.shadowBlur = 12;
-      ctx.fillText(`= ${pct}%`, endX, y + 6);
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(232,48,106,.45)'; ctx.shadowBlur = 10;
+      ctx.fillText(`= ${pct}%`, lastX, circleY);
       ctx.restore();
     }
   }
+}
+
+function drawCircleNum(ctx, x, y, r, num, person, isLast, p1c, p2c, fontSize) {
+  ctx.save();
+  if (isLast) {
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, '#ff6b9d'); grad.addColorStop(1, '#c9304e');
+    ctx.fillStyle = grad;
+    ctx.shadowColor = 'rgba(232,48,106,.5)'; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.fillStyle = person===1?'rgba(232,48,106,.13)':person===2?'rgba(199,125,255,.13)':'rgba(255,179,204,.18)';
+    ctx.strokeStyle = person===1?p1c:person===2?p2c:'rgba(255,107,157,.55)';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+  ctx.font = `700 ${fontSize}px 'Gaegu', cursive`;
+  ctx.fillStyle = isLast ? 'white' : (person===1?p1c:person===2?p2c:'rgba(80,30,50,.85)');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(num, x, y);
+  ctx.restore();
 }
 
 async function drawArc(ctx, x1, y1, x2, y2, mx, my) {
