@@ -594,8 +594,12 @@ async function drawCalcCanvas(seq, strokes, steps) {
   const n      = steps[0].length;
 
   // ── 레이아웃 계산 ──
-  const CELL   = Math.floor((W - 8) / n);
-  const R      = Math.max(16, Math.min(20, CELL * 0.38));   // 일반 원
+  // R_LAST가 원 중심에서 양쪽으로 나가므로, CELL * n + 패딩 2개가 W 안에 들어와야 함
+  // 패딩: 양쪽 R_LAST + 여백
+  const R_EST  = Math.max(16, Math.min(20, ((W - 8) / n) * 0.38));
+  const R_LAST_EST = Math.round(R_EST * 1.4);
+  const CELL   = Math.floor((W - R_LAST_EST * 2 - 8) / n);
+  const R      = Math.max(14, Math.min(18, CELL * 0.38));   // 일반 원
   const R_LAST = Math.round(R * 1.4);                        // 마지막 원
 
   // 행 구조: 원 영역 + 계산식 영역 (고정 높이)
@@ -632,13 +636,17 @@ async function drawCalcCanvas(seq, strokes, steps) {
   }
   // row별 계산식 y (원 아래)
   function fY(row) { return R + 6 + row * ROW_H + R + 4; }
-  // row별 원들의 시작 x
-  function sX(rN)  { return (W - CELL * rN) / 2 + CELL / 2; }
+  // row별 원들의 시작 x — 원이 캔버스 밖으로 나가지 않도록 보정
+  function sX(rN, isLastRow) {
+    const pad = isLastRow ? R_LAST + 4 : R + 4;
+    const rawStart = (W - CELL * rN) / 2 + CELL / 2;
+    return Math.max(pad, rawStart);
+  }
 
   for (let row = 0; row < steps.length; row++) {
     const nums   = steps[row];
     const rN     = nums.length;
-    const sx     = sX(rN);
+    const sx     = sX(rN, isLast);
     const cy     = cY(row);
     const isLast = row === steps.length - 1;
     const curR   = isLast ? R_LAST : R;
@@ -661,7 +669,7 @@ async function drawCalcCanvas(seq, strokes, steps) {
       // ── 2행 이후: 계산식 → 화살표 → 결과원 순서 ──
       const prev = steps[row-1];
       const pN   = prev.length;
-      const psx  = sX(pN);
+      const psx  = sX(pN, false);
       const prevCY = cY(row-1);
       const formulaY = fY(row-1);  // 이전 행 원 바로 아래
 
@@ -747,22 +755,21 @@ async function drawCalcCanvas(seq, strokes, steps) {
         await sleep(40);
       }
 
-      // % 텍스트: 원들 정중앙 아래에 (짤림 방지!)
+      // % 텍스트: 원들 정중앙 아래
       await sleep(260);
-      const pct     = nums[0]*10 + nums[1];
-      const pctSz   = Math.max(26, Math.min(38, W * 0.09));
-      const pctY    = cy + R_LAST + pctSz * 0.7;
+      const pct   = nums[0]*10 + nums[1];
+      const pctSz = Math.max(26, Math.min(38, W * 0.09));
+      const pctY  = cy + R_LAST + pctSz * 0.75;
       ctx.save();
       ctx.font         = `700 ${pctSz}px 'Gaegu',cursive`;
       ctx.fillStyle    = '#e8306a';
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
       ctx.shadowColor  = 'transparent'; ctx.shadowBlur = 0;
-      // 넘치지 않도록 캔버스 너비 체크
-      const pctText = `= ${pct}%`;
-      const pctW    = ctx.measureText(pctText).width;
-      const pctX    = Math.min(W/2, W - pctW/2 - 8);
-      ctx.fillText(pctText, pctX, pctY);
+      // 마지막 원들의 실제 중앙 x 계산
+      const lastSX  = sX(rN, true);
+      const circCenterX = lastSX + (rN - 1) * CELL / 2;
+      ctx.fillText(`= ${pct}%`, W / 2, pctY);
       ctx.restore();
     }
   }
