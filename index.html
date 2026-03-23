@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💕 이름 궁합 테스트 - 우리 사이 몇 퍼센트?</title>
+<meta name="description" content="이름 획수로 보는 커플 궁합 테스트! 두 사람의 이름으로 궁합 점수를 확인해보세요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink-deep: #e8306a;
+    --pink-mid: #ff6b9d;
+    --pink-light: #ffb3cc;
+    --pink-pale: #fff0f5;
+    --peach: #ffb347;
+    --purple: #c77dff;
+    --white: #ffffff;
+    --text-dark: #3d1a2e;
+    --text-mid: #7a3a5a;
+    --shadow: rgba(232, 48, 106, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: linear-gradient(135deg, #fff0f5 0%, #ffe4f0 40%, #ffd6e7 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text-dark);
+  }
+
+  /* ── 배경 버블들 ── */
+  .bg-bubbles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.12;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(110vh) scale(0.8); opacity: 0; }
+    10%  { opacity: 0.12; }
+    90%  { opacity: 0.12; }
+    100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+  }
+
+  /* ── 메인 래퍼 ── */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  /* ── 광고 배너 (top) ── */
+  .ad-banner-top {
+    width: 100%;
+    background: linear-gradient(90deg, #ffe4f0, #ffd6e7);
+    border-bottom: 1px solid var(--pink-light);
+    text-align: center;
+    padding: 8px 0;
+    font-size: 11px;
+    color: var(--text-mid);
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 2;
+  }
+  .ad-slot {
+    background: linear-gradient(135deg, #ffe4f0, #fff0f5);
+    border: 1.5px dashed var(--pink-light);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: var(--pink-mid);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    margin: 12px 0;
+  }
+
+  /* ── 히어로 섹션 ── */
+  .hero {
+    text-align: center;
+    padding: 24px 0 8px;
+    position: relative;
+  }
+
+  /* 하트 무대 */
+  .heart-stage {
+    position: relative;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  /* 큰 메인 하트 */
+  .main-heart {
+    font-size: 96px;
+    display: inline-block;
+    transform: rotate(-10deg);
+    animation: heartBounce 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 8px 24px rgba(232,48,106,0.4));
+    position: relative;
+    z-index: 2;
+  }
+  @keyframes heartBounce {
+    0%, 100% { transform: rotate(-10deg) translateY(0) scale(1); }
+    30%       { transform: rotate(-8deg)  translateY(-18px) scale(1.08); }
+    50%       { transform: rotate(-12deg) translateY(-8px) scale(0.97); }
+    70%       { transform: rotate(-9deg)  translateY(-20px) scale(1.05); }
+  }
+
+  /* 작은 떠다니는 하트들 */
+  .small-heart {
+    position: absolute;
+    font-size: 28px;
+    animation: floatHeart ease-in-out infinite;
+    opacity: 0.75;
+  }
+  .small-heart:nth-child(1) { left: 10%; top: 20%; animation-duration: 2.2s; animation-delay: 0s;   font-size: 22px; }
+  .small-heart:nth-child(2) { left: 20%; top: 60%; animation-duration: 2.8s; animation-delay: 0.4s; font-size: 18px; }
+  .small-heart:nth-child(3) { right: 10%; top: 15%; animation-duration: 2.0s; animation-delay: 0.7s; font-size: 26px; }
+  .small-heart:nth-child(4) { right: 20%; top: 55%; animation-duration: 3.0s; animation-delay: 1.1s; font-size: 16px; }
+  .small-heart:nth-child(5) { left: 35%; top: 5%;  animation-duration: 2.5s; animation-delay: 0.3s; font-size: 14px; }
+  .small-heart:nth-child(6) { right: 35%; top: 75%; animation-duration: 2.3s; animation-delay: 0.9s; font-size: 20px; }
+
+  @keyframes floatHeart {
+    0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
+    50%       { transform: translateY(-14px) rotate(5deg) scale(1.1); }
+  }
+
+  .hero-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--pink-deep);
+    line-height: 1.2;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.8);
+  }
+  .hero-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  /* ── 입력 카드 ── */
+  .card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 24px 20px;
+    margin: 16px 0;
+    box-shadow: 0 8px 32px var(--shadow), 0 2px 8px rgba(255,255,255,0.6) inset;
+    border: 1.5px solid rgba(255,179,204,0.5);
+  }
+
+  .person-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--pink-deep);
+    margin-bottom: 12px;
+  }
+  .person-label .badge {
+    background: linear-gradient(135deg, var(--pink-mid), var(--pink-deep));
+    color: white;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+  }
+
+  .input-group {
+    margin-bottom: 12px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--pink-light);
+    border-radius: 14px;
+    font-size: 1rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-dark);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .input-group input:focus {
+    border-color: var(--pink-mid);
+    box-shadow: 0 0 0 3px rgba(255,107,157,0.15);
+  }
+  .input-group input::placeholder { color: #cca0b8; }
+
+  .divider-heart {
+    text-align: center;
+    font-size: 1.6rem;
+    margin: 8px 0;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+  /* ── CTA 버튼 ── */
+  .btn-check {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--pink-mid) 0%, var(--pink-deep) 100%);
+    color: white;
+    border: none;
+    border-radius: 18px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-check::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    border-radius: inherit;
+  }
+  .btn-check:hover  { transform: translateY(-2px); box-shadow: 0 10px 28px var(--shadow); }
+  .btn-check:active { transform: translateY(0); }
+  .btn-check:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ── 획수 애니메이션 섹션 ── */
+  #stroke-section {
+    display: none;
+  }
+  .stroke-card {
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 16px 0;
+    border: 1.5px solid rgba(255,179,204,0.5);
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+  .stroke-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 14px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .stroke-chars {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .stroke-char {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .stroke-char.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stroke-char .char-glyph {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--pink-pale), white);
+    border: 2px solid var(--pink-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stroke-char .char-num {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--pink-deep);
+  }
+  .stroke-char .char-label {
+    font-size: 0.65rem;
+    color: var(--text-mid);
+  }
+
+  /* ── 계산 과정 캔버스 ── */
+  .calc-canvas-wrap {
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 20px 16px;
+    margin: 16px 0;
+    border: 1.5px solid rgba(255,179,204,0.5);
+    box-shadow: 0 4px 16px var(--shadow);
+    overflow: hidden;
+  }
+  .calc-title {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 16px;
+  }
+  #calcCanvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  /* ── 결과 카드 ── */
+  #result-section { display: none; }
+
+  .result-card {
+    background: linear-gradient(135deg, #fff0f7, #ffe8f2);
+    border-radius: 28px;
+    padding: 32px 24px;
+    margin: 16px 0;
+    text-align: center;
+    border: 2px solid var(--pink-light);
+    box-shadow: 0 12px 40px var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(255,107,157,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .result-names {
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .result-names span {
+    color: var(--pink-deep);
+  }
+
+  .percent-display {
+    font-family: 'Gaegu', cursive;
+    font-size: 5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--pink-mid), var(--pink-deep), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin: 8px 0;
+    animation: countUp 0.6s ease-out;
+  }
+  @keyframes countUp {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .result-emoji {
+    font-size: 2.4rem;
+    margin: 8px 0;
+  }
+
+  .result-grade {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--pink-deep);
+    margin: 4px 0 16px;
+  }
+
+  .result-comment {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    line-height: 1.8;
+    text-align: left;
+    border: 1px solid var(--pink-light);
+  }
+  .result-comment strong { color: var(--pink-deep); }
+
+  /* ── 공유 버튼 ── */
+  .share-btns {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .btn-share {
+    flex: 1;
+    padding: 13px;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-share:hover { transform: translateY(-2px); }
+  .btn-kakao { background: #FEE500; color: #3C1E1E; }
+  .btn-copy  { background: linear-gradient(135deg, var(--purple), #9c4dff); color: white; }
+  .btn-retry {
+    width: 100%;
+    padding: 13px;
+    background: white;
+    border: 2px solid var(--pink-light);
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--pink-deep);
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .btn-retry:hover { background: var(--pink-pale); }
+
+  /* ── 중간 광고 ── */
+  .ad-mid {
+    margin: 8px 0;
+  }
+
+  /* ── 하단 안내 ── */
+  .disclaimer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: #c0a0b0;
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  /* ── 반짝이 파티클 ── */
+  .sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 1.4rem;
+    animation: sparkleFly 1.2s ease-out forwards;
+  }
+  @keyframes sparkleFly {
+    0%   { transform: translateY(0) scale(0); opacity: 1; }
+    50%  { transform: translateY(-60px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
+  }
+
+  /* 로딩 도트 */
+  .loading-dots {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .loading-dots span {
+    width: 7px; height: 7px;
+    background: white;
+    border-radius: 50%;
+    animation: dotBounce 1s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotBounce {
+    0%,80%,100% { transform: scale(0.6); opacity: 0.5; }
+    40%          { transform: scale(1.1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 배경 버블 -->
+<div class="bg-bubbles" id="bgBubbles"></div>
+
+<!-- 최상단 광고 -->
+<div class="ad-banner-top">💕 Advertisement</div>
+<div style="max-width:520px;margin:0 auto;padding:0 16px;">
+  <div class="ad-slot" style="min-height:90px;display:flex;align-items:center;justify-content:center;">
+    <!-- Google AdSense: 상단 배너 (320x100 or 320x50) -->
+    <span>📢 광고 영역 (상단 배너)</span>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <!-- 히어로 -->
+  <div class="hero">
+    <div class="heart-stage">
+      <span class="small-heart">💕</span>
+      <span class="small-heart">🩷</span>
+      <span class="small-heart">💗</span>
+      <span class="small-heart">💖</span>
+      <span class="small-heart">💓</span>
+      <span class="small-heart">💝</span>
+      <span class="main-heart">❤️</span>
+    </div>
+    <h1 class="hero-title">이름 궁합 테스트</h1>
+    <p class="hero-subtitle">
+      획수로 알아보는 두 사람의 운명 💘<br>
+      <span style="font-size:0.75rem;color:#c0a0b0;">어릴 때 그 궁합 보기, 기억하시죠? 😄</span>
+    </p>
+  </div>
+
+  <!-- 입력 카드 -->
+  <div class="card" id="inputCard">
+    <div class="person-label">
+      <span class="badge">나</span>
+      <span>내 정보 입력</span>
+    </div>
+    <div class="input-group">
+      <label>이름 (한글)</label>
+      <input type="text" id="name1" placeholder="예) 김민준" maxlength="5" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>생년월일</label>
+      <input type="date" id="birth1" max="2015-12-31">
+    </div>
+
+    <div class="divider-heart">💕</div>
+
+    <div class="person-label">
+      <span class="badge" style="background:linear-gradient(135deg,#c77dff,#9c4dff);">상대</span>
+      <span>상대방 정보 입력</span>
+    </div>
+    <div class="input-group">
+      <label>이름 (한글)</label>
+      <input type="text" id="name2" placeholder="예) 이서연" maxlength="5" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>생년월일</label>
+      <input type="date" id="birth2" max="2015-12-31">
+    </div>
+
+    <button class="btn-check" id="btnCheck" onclick="startCheck()">
+      💘 궁합 확인하기
+    </button>
+  </div>
+
+  <!-- 중간 광고 (입력 아래) -->
+  <div class="ad-slot ad-mid" style="min-height:100px;display:flex;align-items:center;justify-content:center;">
+    <!-- Google AdSense: 중간 직사각형 (300x250) -->
+    <span>📢 광고 영역 (중간)</span>
+  </div>
+
+  <!-- 획수 섹션 -->
+  <div id="stroke-section">
+    <div class="stroke-card" id="strokeCard1">
+      <div class="stroke-title" id="strokeTitle1">획수 계산 중…</div>
+      <div class="stroke-chars" id="strokeChars1"></div>
+    </div>
+    <div class="stroke-card" id="strokeCard2" style="display:none;">
+      <div class="stroke-title" id="strokeTitle2">획수 계산 중…</div>
+      <div class="stroke-chars" id="strokeChars2"></div>
+    </div>
+    <div class="calc-canvas-wrap" id="calcWrap" style="display:none;">
+      <div class="calc-title">🔢 궁합 계산 과정</div>
+      <canvas id="calcCanvas" width="460" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- 결과 섹션 -->
+  <div id="result-section">
+    <div class="result-card">
+      <div class="result-names" id="resultNames"></div>
+      <div class="percent-display" id="resultPercent"></div>
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-grade" id="resultGrade"></div>
+      <div class="result-comment" id="resultComment"></div>
+    </div>
+
+    <!-- 결과 아래 광고 (핵심 위치) -->
+    <div class="ad-slot" style="min-height:250px;display:flex;align-items:center;justify-content:center;">
+      <!-- Google AdSense: 결과 직사각형 (300x250) — 높은 CTR 예상 위치 -->
+      <span>📢 광고 영역 (결과 하단 — 핵심)</span>
+    </div>
+
+    <div class="share-btns">
+      <button class="btn-share btn-kakao" onclick="shareKakao()">💬 카카오 공유</button>
+      <button class="btn-share btn-copy" onclick="copyLink()">🔗 링크 복사</button>
+    </div>
+    <button class="btn-retry" onclick="retry()">🔄 다시 해보기</button>
+
+    <!-- 하단 광고 -->
+    <div class="ad-slot" style="min-height:100px;margin-top:16px;display:flex;align-items:center;justify-content:center;">
+      <!-- Google AdSense: 하단 배너 -->
+      <span>📢 광고 영역 (하단)</span>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ※ 이 서비스는 순수한 재미를 위한 것입니다 😄<br>
+    실제 궁합과는 무관하니 가볍게 즐겨주세요!
+  </div>
+</div>
+
+<script>
+// ───────────────────────────────────────────────
+// 1. 한글 획수 데이터
+// ───────────────────────────────────────────────
+const STROKE_MAP = {
+  // 초성
+  'ㄱ':2,'ㄴ':2,'ㄷ':3,'ㄹ':5,'ㅁ':4,'ㅂ':4,'ㅅ':2,'ㅇ':1,'ㅈ':3,
+  'ㅊ':4,'ㅋ':3,'ㅌ':4,'ㅍ':4,'ㅎ':3,'ㄲ':4,'ㄸ':6,'ㅃ':8,'ㅆ':4,'ㅉ':6,
+  // 중성
+  'ㅏ':2,'ㅐ':3,'ㅑ':3,'ㅒ':4,'ㅓ':2,'ㅔ':3,'ㅕ':3,'ㅖ':4,'ㅗ':2,'ㅘ':4,
+  'ㅙ':5,'ㅚ':3,'ㅛ':3,'ㅜ':2,'ㅝ':4,'ㅞ':5,'ㅟ':3,'ㅠ':3,'ㅡ':1,'ㅢ':2,'ㅣ':1,
+  // 종성 (받침 없으면 0)
+  '':0,'ㄱ_':2,'ㄲ_':4,'ㄳ_':4,'ㄴ_':2,'ㄵ_':5,'ㄶ_':5,'ㄷ_':3,'ㄹ_':5,
+  'ㄺ_':7,'ㄻ_':9,'ㄼ_':9,'ㄽ_':7,'ㄾ_':9,'ㄿ_':8,'ㅀ_':8,'ㅁ_':4,'ㅂ_':4,
+  'ㅄ_':6,'ㅅ_':2,'ㅆ_':4,'ㅇ_':1,'ㅈ_':3,'ㅊ_':4,'ㅋ_':3,'ㅌ_':4,'ㅍ_':4,'ㅎ_':3
+};
+
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+function getCharStroke(ch) {
+  const code = ch.charCodeAt(0);
+  if (code < 0xAC00 || code > 0xD7A3) return 1; // 한글 아니면 기본 1
+  const idx = code - 0xAC00;
+  const choIdx  = Math.floor(idx / (21 * 28));
+  const jungIdx = Math.floor((idx % (21 * 28)) / 28);
+  const jongIdx = idx % 28;
+  const cho  = STROKE_MAP[CHO[choIdx]]  || 2;
+  const jung = STROKE_MAP[JUNG[jungIdx]]|| 1;
+  const jong = STROKE_MAP[JONG[jongIdx] + (jongIdx > 0 ? '_' : '')] || 0;
+  return cho + jung + jong;
+}
+
+function getNameStrokes(name) {
+  return [...name].map(ch => getCharStroke(ch));
+}
+
+// ───────────────────────────────────────────────
+// 2. 궁합 계산 (획수 더하기 방식)
+// ───────────────────────────────────────────────
+function calcCompatibility(strokes1, strokes2) {
+  let nums = [...strokes1, ...strokes2].map(n => n % 10 === 0 ? 0 : n % 10);
+  const steps = [nums.map(n => n)];
+  while (nums.length > 2) {
+    const next = [];
+    for (let i = 0; i < nums.length - 1; i++) {
+      const s = nums[i] + nums[i+1];
+      next.push(s >= 10 ? Math.floor(s/10) + (s%10) : s);
+    }
+    nums = next;
+    steps.push([...nums]);
+  }
+  return { percent: nums[0] * 10 + nums[1], steps };
+}
+
+// ───────────────────────────────────────────────
+// 3. 결과 텍스트
+// ───────────────────────────────────────────────
+function getResultData(percent, name1, name2, birth1, birth2) {
+  const age1 = birth1 ? new Date().getFullYear() - new Date(birth1).getFullYear() : null;
+  const age2 = birth2 ? new Date().getFullYear() - new Date(birth2).getFullYear() : null;
+  const ageDiff = (age1 && age2) ? Math.abs(age1 - age2) : null;
+
+  const comments = {
+    range: [
+      { min:90, max:100, emoji:'💯🔥', grade:'운명의 상대!', 
+        text: `<strong>${name1}</strong>님과 <strong>${name2}</strong>님, 이 점수 나오면 결혼각 아닌가요?! 🎊<br>우주가 두 분을 위해 특별히 준비한 조합입니다. 지금 당장 손 잡으세요. 별자리도 행성도 다 동의합니다. ${ageDiff ? `나이 차이 ${ageDiff}살? 그게 무슨 상관이에요, 점수가 ${percent}인데요 💕` : ''}` },
+      { min:80, max:89, emoji:'😍💕', grade:'찰떡궁합!',
+        text: `와 진짜요?! <strong>${name1}</strong>님과 <strong>${name2}</strong>님 이거 그냥 사귀셔야 할 것 같은데요? 😏<br>같이 밥 먹으면 국 간도 딱 맞고, 에어컨 온도 싸움도 없고, 취향도 비슷할 확률 99%! 이런 궁합 흔치 않아요. 빨리 고백하세요.` },
+      { min:70, max:79, emoji:'🥰✨', grade:'좋은 궁합!',
+        text: `<strong>${name1}</strong>님과 <strong>${name2}</strong>님, 꽤 잘 맞는 편이에요! 💛<br>완벽하진 않지만 그게 또 매력 아닐까요? 싸워도 금방 화해하는 그런 사이! 서로 조금씩 노력하면 최강 커플 등극 가능합니다. 파이팅! 👊` },
+      { min:60, max:69, emoji:'🙂💙', grade:'나쁘지 않은 사이',
+        text: `음… <strong>${name1}</strong>님과 <strong>${name2}</strong>님, 60점대면 평타는 치는 거예요! 🤔<br>밀당이 좀 있을 수 있어요. "오늘 뭐 먹을래?" "아무거나" "그럼 치킨?" "싫어" 이런 대화 자주 할 것 같지만… 그래도 함께하면 재밌을 거예요.` },
+      { min:50, max:59, emoji:'😅🫶', grade:'노력이 필요해요',
+        text: `<strong>${name1}</strong>님과 <strong>${name2}</strong>님… 솔직히 쉽지 않을 것 같아요 😅<br>하지만 걱정 마세요! 점수는 낮아도 마음이 높으면 돼요. 단, 서로 배려를 2배로 해야 합니다. 그리고 제발 취침 시간 싸움은 하지 마세요.` },
+      { min:0, max:49, emoji:'💀😂', grade:'이건 좀 힘들걸?',
+        text: `헉… <strong>${name1}</strong>님과 <strong>${name2}</strong>님… 이름 획수가 이렇게 안 맞을 수가 😂<br>하지만 잠깐! 역사상 가장 유명한 커플들도 주변의 반대를 딛고 성공했어요. 그리고 솔직히 이건 그냥 이름 획수잖아요? 😄 진짜 궁합은 두 분이 만들어가는 거예요! 화이팅! 💪` }
+    ]
+  };
+
+  const data = comments.range.find(r => percent >= r.min && percent <= r.max) || comments.range[comments.range.length-1];
+  return data;
+}
+
+// ───────────────────────────────────────────────
+// 4. UI 흐름
+// ───────────────────────────────────────────────
+let g_strokes1, g_strokes2, g_steps, g_percent;
+
+async function startCheck() {
+  const name1  = document.getElementById('name1').value.trim();
+  const name2  = document.getElementById('name2').value.trim();
+  const birth1 = document.getElementById('birth1').value;
+  const birth2 = document.getElementById('birth2').value;
+
+  if (!name1 || !name2) { alert('두 사람의 이름을 모두 입력해 주세요! 💕'); return; }
+  if (!/^[가-힣]+$/.test(name1) || !/^[가-힣]+$/.test(name2)) {
+    alert('이름은 한글로 입력해 주세요! 🙏'); return;
+  }
+
+  const btn = document.getElementById('btnCheck');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-dots"><span></span><span></span><span></span></span>';
+
+  g_strokes1 = getNameStrokes(name1);
+  g_strokes2 = getNameStrokes(name2);
+  const calc = calcCompatibility(g_strokes1, g_strokes2);
+  g_steps   = calc.steps;
+  g_percent = calc.percent;
+
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('stroke-section').style.display = 'block';
+
+  // 획수 애니메이션 #1
+  await showStrokeAnim('strokeChars1', 'strokeTitle1', name1, g_strokes1, '💕');
+  // 획수 애니메이션 #2
+  document.getElementById('strokeCard2').style.display = '';
+  await showStrokeAnim('strokeChars2', 'strokeTitle2', name2, g_strokes2, '💜');
+  // 계산 캔버스
+  document.getElementById('calcWrap').style.display = '';
+  await drawCalcCanvas(name1, name2, g_strokes1, g_strokes2, g_steps);
+
+  // 결과 표시
+  await sleep(600);
+  showResult(name1, name2, birth1, birth2, g_percent);
+
+  btn.disabled = false;
+  btn.innerHTML = '💘 궁합 확인하기';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function showStrokeAnim(containerId, titleId, name, strokes, icon) {
+  const title = document.getElementById(titleId);
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  title.textContent = `${icon} ${name} 획수 계산 중...`;
+
+  for (let i = 0; i < name.length; i++) {
+    await sleep(320);
+    const div = document.createElement('div');
+    div.className = 'stroke-char';
+    div.innerHTML = `
+      <div class="char-glyph">${name[i]}</div>
+      <div class="char-num">${strokes[i]}</div>
+      <div class="char-label">획</div>`;
+    container.appendChild(div);
+    await sleep(30);
+    div.classList.add('show');
+  }
+  await sleep(200);
+  title.textContent = `${icon} ${name} — 총 ${strokes.reduce((a,b)=>a+b,0)}획`;
+}
+
+// ───────────────────────────────────────────────
+// 5. 계산 과정 캔버스 애니메이션
+// ───────────────────────────────────────────────
+async function drawCalcCanvas(name1, name2, s1, s2, steps) {
+  const canvas = document.getElementById('calcCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const allNums = steps[0];
+  const n = allNums.length;
+  const ROW_H = Math.min(44, (canvas.height - 20) / steps.length);
+  const totalH = ROW_H * steps.length + 30;
+  canvas.height = totalH;
+
+  ctx.clearRect(0, 0, W, canvas.height);
+
+  const cellW = Math.min(48, (W - 20) / n);
+  const startX = (W - cellW * n) / 2 + cellW/2;
+
+  const colors = ['#ff6b9d','#e8306a','#c77dff','#ffb347','#5bc0de'];
+
+  // 각 row 그리기
+  for (let row = 0; row < steps.length; row++) {
+    const nums = steps[row];
+    const y = 20 + row * ROW_H;
+    const rowN = nums.length;
+    const rowStartX = (W - cellW * rowN) / 2 + cellW/2;
+
+    // 이전 row와 선 연결 애니메이션
+    if (row > 0) {
+      await sleep(180);
+      const prevNums = steps[row-1];
+      const prevY = y - ROW_H;
+      const prevStartX = (W - cellW * prevNums.length) / 2 + cellW/2;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,107,157,0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3,3]);
+      for (let i = 0; i < rowN; i++) {
+        ctx.beginPath();
+        ctx.moveTo(prevStartX + i * cellW, prevY + 16);
+        ctx.lineTo(rowStartX + i * cellW + cellW/2, y - 10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(prevStartX + (i+1) * cellW, prevY + 16);
+        ctx.lineTo(rowStartX + i * cellW + cellW/2, y - 10);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // 숫자 원 그리기
+    for (let i = 0; i < rowN; i++) {
+      await sleep(60);
+      const x = rowStartX + i * cellW;
+      const color = colors[row % colors.length];
+      const r = row === steps.length - 1 ? 18 : 14;
+
+      // 원
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = row === steps.length - 1
+        ? `linear-gradient` : color;
+      
+      if (row === steps.length - 1) {
+        const grad = ctx.createRadialGradient(x,y,0,x,y,r);
+        grad.addColorStop(0, '#ff6b9d');
+        grad.addColorStop(1, '#e8306a');
+        ctx.fillStyle = grad;
+      } else {
+        ctx.fillStyle = color + '22';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+      ctx.fill();
+      ctx.restore();
+
+      // 숫자
+      ctx.save();
+      ctx.fillStyle = row === steps.length - 1 ? 'white' : '#3d1a2e';
+      ctx.font = `bold ${row === steps.length - 1 ? 15 : 12}px 'Noto Sans KR'`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(nums[i], x, y);
+      ctx.restore();
+    }
+
+    // 마지막 row면 퍼센트 표시
+    if (row === steps.length - 1) {
+      await sleep(200);
+      const pct = nums[0] * 10 + nums[1];
+      ctx.save();
+      ctx.fillStyle = '#e8306a';
+      ctx.font = `bold 16px 'Noto Sans KR'`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`→  ${pct}%`, W/2 + cellW * 1.5, y);
+      ctx.restore();
+    }
+  }
+}
+
+// ───────────────────────────────────────────────
+// 6. 결과 표시
+// ───────────────────────────────────────────────
+function showResult(name1, name2, birth1, birth2, percent) {
+  const data = getResultData(percent, name1, name2, birth1, birth2);
+  
+  document.getElementById('resultNames').innerHTML =
+    `<span>${name1}</span> 💕 <span>${name2}</span>`;
+  document.getElementById('resultPercent').textContent = `${percent}%`;
+  document.getElementById('resultEmoji').textContent = data.emoji;
+  document.getElementById('resultGrade').textContent = data.grade;
+  document.getElementById('resultComment').innerHTML = data.text;
+
+  document.getElementById('result-section').style.display = 'block';
+  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // 파티클 효과
+  if (percent >= 70) launchSparkles();
+}
+
+function launchSparkles() {
+  const emojis = ['💕','💖','✨','🌸','💗','⭐','🎊'];
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 80 + 10 + '%';
+      el.style.top  = Math.random() * 40 + 30 + '%';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1300);
+    }, i * 100);
+  }
+}
+
+function retry() {
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('stroke-section').style.display = 'none';
+  document.getElementById('inputCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ───────────────────────────────────────────────
+// 7. 공유
+// ───────────────────────────────────────────────
+function shareKakao() {
+  alert('카카오 SDK 연동 후 공유 기능이 활성화됩니다! 💕\n지금은 링크 복사를 이용해 주세요.');
+}
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    alert('링크가 복사되었어요! 친구에게 공유해 보세요 💕');
+  }).catch(() => {
+    prompt('아래 링크를 복사하세요:', url);
+  });
+}
+
+// ───────────────────────────────────────────────
+// 8. 배경 버블 생성
+// ───────────────────────────────────────────────
+function initBubbles() {
+  const container = document.getElementById('bgBubbles');
+  const colors = ['#ffb3cc','#ff6b9d','#c77dff','#ffb347','#ff8fab'];
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 60 + 20;
+    b.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(b);
+  }
+}
+initBubbles();
+
+// 엔터키 지원
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') startCheck();
+});
+</script>
+</body>
+</html>
