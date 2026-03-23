@@ -51,20 +51,23 @@ body{
 .person-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0;}
 .card-me::before{background:linear-gradient(90deg,var(--pink-mid),var(--pink-deep));}
 .card-them::before{background:linear-gradient(90deg,var(--purple),#9c4dff);}
-.card-tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 9px;border-radius:20px;display:inline-block;margin-bottom:10px;}
+.card-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 11px;border-radius:20px;display:inline-block;margin-bottom:8px;}
 .card-me .card-tag{background:rgba(232,48,106,.1);color:var(--pink-deep);border:1px solid rgba(232,48,106,.25);}
 .card-them .card-tag{background:rgba(199,125,255,.1);color:var(--purple);border:1px solid rgba(199,125,255,.25);}
-.card-sub{font-size:.72rem;color:var(--text-mid);margin-bottom:12px;font-weight:300;}
+.card-sub{font-size:.82rem;color:var(--text-mid);margin-bottom:10px;font-weight:400;}
 .field{margin-bottom:10px;}.field:last-child{margin-bottom:0;}
-.field label{display:block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#c0a0b0;margin-bottom:5px;}
-.field input{width:100%;background:rgba(255,255,255,.9);border:1.5px solid var(--pink-light);border-radius:11px;padding:11px;font-size:.92rem;font-family:'Gaegu',cursive;font-weight:700;color:var(--text-dark);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--text-mid);margin-bottom:5px;}
+.field input{width:100%;background:rgba(255,255,255,.9);border:1.5px solid var(--pink-light);border-radius:11px;padding:11px 10px;font-size:1rem;font-family:'Gaegu',cursive;font-weight:700;color:var(--text-dark);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
 .field input::placeholder{color:#d4aec0;font-weight:400;}
 .field input:focus{border-color:var(--pink-mid);box-shadow:0 0 0 3px rgba(255,107,157,.14);}
-.date-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+/* 날짜: 년/월/일 세로 3줄 → 한 줄 셀렉트로 */
+.date-col{display:flex;flex-direction:column;gap:5px;}
 .sel-w{position:relative;}
-.sel-w::after{content:'▾';position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:9px;color:#c0a0b0;pointer-events:none;}
-.sel-w select{width:100%;background:rgba(255,255,255,.9);border:1.5px solid var(--pink-light);border-radius:11px;padding:10px 6px 10px 9px;font-size:.78rem;font-family:'Gaegu',cursive;font-weight:700;color:var(--text-dark);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;transition:border-color .2s;}
+.sel-w::after{content:'▾';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:#c0a0b0;pointer-events:none;}
+.sel-w select{width:100%;background:rgba(255,255,255,.9);border:1.5px solid var(--pink-light);border-radius:11px;padding:10px 26px 10px 11px;font-size:.9rem;font-family:'Gaegu',cursive;font-weight:700;color:var(--text-dark);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;transition:border-color .2s;}
 .sel-w select:focus{border-color:var(--pink-mid);}
+/* 년월 한 줄 */
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
 
 .btn-cta{width:100%;padding:17px;background:linear-gradient(135deg,var(--pink-mid),var(--pink-deep));border:none;border-radius:18px;font-size:1.05rem;font-weight:700;font-family:'Gaegu',cursive;color:white;cursor:pointer;letter-spacing:.5px;box-shadow:0 7px 24px var(--shadow);transition:transform .15s;position:relative;overflow:hidden;margin-top:14px;}
 .btn-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);}
@@ -85,7 +88,7 @@ body{
 /* 글자 행 */
 .chars-row{
   display:flex;justify-content:center;align-items:flex-end;
-  gap:4px;flex-wrap:nowrap;min-height:110px;margin-bottom:20px;
+  gap:3px;flex-wrap:nowrap;min-height:110px;margin-bottom:20px;
   overflow:hidden;
   width:100%;
 }
@@ -192,12 +195,12 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
         </div>
         <div class="field">
           <label>생년월일</label>
-          <div class="date-row">
-            <div class="sel-w"><select id="y1"><option value="">년</option></select></div>
-            <div class="sel-w"><select id="m1"><option value="">월</option></select></div>
+          <div class="sel-w" style="margin-bottom:5px;">
+            <select id="y1"><option value="">년도 선택</option></select>
           </div>
-          <div class="date-row" style="margin-top:5px;">
-            <div class="sel-w" style="grid-column:1/-1"><select id="d1"><option value="">일</option></select></div>
+          <div class="date-row">
+            <div class="sel-w"><select id="m1"><option value="">월</option></select></div>
+            <div class="sel-w"><select id="d1"><option value="">일</option></select></div>
           </div>
         </div>
       </div>
@@ -210,12 +213,12 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
         </div>
         <div class="field">
           <label>생년월일</label>
-          <div class="date-row">
-            <div class="sel-w"><select id="y2"><option value="">년</option></select></div>
-            <div class="sel-w"><select id="m2"><option value="">월</option></select></div>
+          <div class="sel-w" style="margin-bottom:5px;">
+            <select id="y2"><option value="">년도 선택</option></select>
           </div>
-          <div class="date-row" style="margin-top:5px;">
-            <div class="sel-w" style="grid-column:1/-1"><select id="d2"><option value="">일</option></select></div>
+          <div class="date-row">
+            <div class="sel-w"><select id="m2"><option value="">월</option></select></div>
+            <div class="sel-w"><select id="d2"><option value="">일</option></select></div>
           </div>
         </div>
       </div>
@@ -500,18 +503,18 @@ async function animateChars(animSeq) {
   const totalSlots = animSeq.length;
 
   // 컨테이너 너비 기준으로 글자 박스 크기 동적 계산
-  const containerW = container.parentElement.clientWidth || 340;
-  const gap = 4;
-  const boxSize = Math.max(36, Math.min(54, Math.floor((containerW - gap * (totalSlots - 1) - 8) / totalSlots)));
-  const fontSize = Math.max(10, Math.floor(boxSize * 0.35));
-  const countFontSize = Math.max(1.0, boxSize * 0.026); // rem
+  const containerW = container.parentElement.clientWidth || window.innerWidth - 32 || 340;
+  const gap = 3;
+  const boxSize = Math.max(40, Math.min(58, Math.floor((containerW - gap * (totalSlots - 1) - 4) / totalSlots)));
+  const fontSize = Math.max(12, Math.floor(boxSize * 0.38));
+  const countFontSize = Math.max(1.15, boxSize * 0.030); // rem
 
   // 빈 슬롯 placeholder 미리 생성
   const slots = [];
   for (let s = 0; s < totalSlots; s++) {
     const placeholder = document.createElement('div');
     placeholder.style.width = boxSize + 'px';
-    placeholder.style.height = (boxSize + 30) + 'px';
+    placeholder.style.height = (boxSize + 36) + 'px';
     placeholder.style.visibility = 'hidden';
     placeholder.style.flex = '0 0 auto';
     container.appendChild(placeholder);
@@ -585,22 +588,25 @@ async function animateChars(animSeq) {
 // ── 계산 캔버스 ──
 async function drawCalcCanvas(seq, strokes, steps) {
   const canvas = document.getElementById('calcCanvas');
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const W = Math.min(document.getElementById('calcCard').clientWidth - 16, 460);
-  const n = steps[0].length;
+  const ctx    = canvas.getContext('2d');
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = Math.min(document.getElementById('calcCard').clientWidth - 16, 460);
+  const n      = steps[0].length;
 
-  // 셀 크기
-  const CELL = Math.floor((W - 8) / n);
-  const R = Math.max(16, Math.min(22, CELL * 0.40));   // 일반 원
-  const R_LAST = Math.round(R * 1.55);                  // 최종 원 (더 크게)
+  // ── 레이아웃 계산 ──
+  const CELL   = Math.floor((W - 8) / n);
+  const R      = Math.max(16, Math.min(20, CELL * 0.38));   // 일반 원
+  const R_LAST = Math.round(R * 1.4);                        // 마지막 원
 
-  // 행 구조: [원 영역] + [계산식+화살표 영역]
-  const CIRCLE_H = R * 2 + 10;   // 원 위아래 여백 포함
-  const FORMULA_H = 32;          // 계산식 텍스트 높이
-  const ROW_H = CIRCLE_H + FORMULA_H;  // 한 행 전체 높이 (일정!)
+  // 행 구조: 원 영역 + 계산식 영역 (고정 높이)
+  const CIRC_H    = R * 2 + 6;    // 원 영역
+  const FORMULA_H = 30;           // 계산식 텍스트 영역
+  const ROW_H     = CIRC_H + FORMULA_H;  // 한 행 = 일정!
 
-  const TOTAL_H = ROW_H * steps.length + R_LAST * 2 + 20;
+  // 마지막 행은 원(R_LAST) + % 텍스트 — 충분한 여백 확보
+  const PCT_H   = 56;
+  // 마지막 행 원은 R_LAST로 더 크므로 별도 계산
+  const TOTAL_H = ROW_H * (steps.length - 1) + (R_LAST * 2 + 6) + PCT_H + 24;
 
   canvas.style.width  = W + 'px';
   canvas.style.height = TOTAL_H + 'px';
@@ -610,149 +616,182 @@ async function drawCalcCanvas(seq, strokes, steps) {
   ctx.clearRect(0, 0, W, TOTAL_H);
 
   const p1c = '#e8306a', p2c = '#c77dff';
-  const numFont  = `700 ${Math.max(13, R * 0.85)}px 'Gaegu',cursive`;
-  const calcFont = `700 ${Math.max(11, Math.min(13, CELL * 0.26))}px 'Gaegu',cursive`;
 
-  // 각 row의 원 Y좌표 (일정 간격)
-  function circleY(row) {
-    return R + 8 + row * ROW_H;
+  // 계산식 폰트: 셀 너비에 맞게, 최소 10px
+  const calcFontSz = Math.max(10, Math.min(12, CELL * 0.23));
+  const calcFont   = `700 ${calcFontSz}px 'Gaegu',cursive`;
+  const numFontSz  = Math.max(13, R * 0.88);
+  const numFont    = `700 ${numFontSz}px 'Gaegu',cursive`;
+
+  // row별 원의 y 좌표 (마지막 행은 R_LAST 고려)
+  function cY(row) {
+    const isLastRow = row === steps.length - 1;
+    const baseY = R + 6 + row * ROW_H;
+    // 마지막 행: 이전 행들과 ROW_H 간격 유지하되 R_LAST만큼 추가 여백
+    return isLastRow ? baseY + (R_LAST - R) : baseY;
   }
-  // 각 row의 계산식 Y좌표
-  function formulaY(row) {
-    return circleY(row) + R + 6;
-  }
-  // 각 row의 원 시작 X
-  function rowStartX(rN) {
-    return (W - CELL * rN) / 2 + CELL / 2;
-  }
+  // row별 계산식 y (원 아래)
+  function fY(row) { return R + 6 + row * ROW_H + R + 4; }
+  // row별 원들의 시작 x
+  function sX(rN)  { return (W - CELL * rN) / 2 + CELL / 2; }
 
   for (let row = 0; row < steps.length; row++) {
     const nums   = steps[row];
     const rN     = nums.length;
-    const rSX    = rowStartX(rN);
-    const cy     = circleY(row);
+    const sx     = sX(rN);
+    const cy     = cY(row);
     const isLast = row === steps.length - 1;
     const curR   = isLast ? R_LAST : R;
 
-    // ── 1. 연결 아치선 + 계산식 (2행 이후) ──
-    if (row > 0) {
-      const prev   = steps[row - 1];
-      const pN     = prev.length;
-      const pSX    = rowStartX(pN);
-      const prevCY = circleY(row - 1);
-      const fY     = formulaY(row - 1);   // 계산식은 이전 행 원 아래
+    if (row === 0) {
+      // ── 첫 행: 원 순서대로 팝 등장 ──
+      for (let i = 0; i < rN; i++) {
+        const x = sx + i * CELL;
+        const person = seq[i]?.p || 1;
+        // 팝 효과
+        drawCircNum(ctx, x, cy, curR*1.25, nums[i], person, false, p1c, p2c,
+          `700 ${numFontSz*1.2}px 'Gaegu',cursive`);
+        await sleep(40);
+        ctx.clearRect(x-curR*1.5, cy-curR*1.5, curR*3, curR*3);
+        drawCircNum(ctx, x, cy, curR, nums[i], person, false, p1c, p2c, numFont);
+        await sleep(35);
+      }
+
+    } else {
+      // ── 2행 이후: 계산식 → 화살표 → 결과원 순서 ──
+      const prev = steps[row-1];
+      const pN   = prev.length;
+      const psx  = sX(pN);
+      const prevCY = cY(row-1);
+      const formulaY = fY(row-1);  // 이전 행 원 바로 아래
 
       for (let i = 0; i < rN; i++) {
         playCalc();
 
-        const lx = pSX + i * CELL;       // 왼쪽 원 x
-        const rx = pSX + (i + 1) * CELL; // 오른쪽 원 x
-        const destX = rSX + i * CELL;    // 결과 원 x (다음 행)
+        const lx = psx + i * CELL;           // 왼쪽 원 x
+        const rx = psx + (i+1) * CELL;       // 오른쪽 원 x
+        const midX = (lx + rx) / 2;          // 두 원 중간 x
+        const destX = sx + i * CELL;         // 결과 원 x
 
-        // 아치선: 왼쪽원 → 결과원 + 오른쪽원 → 결과원
-        await drawArcLine(ctx, lx, prevCY + R, rx, prevCY + R, destX, cy - curR - 4);
-
-        // 계산식 텍스트
-        const a = prev[i], b = prev[i + 1];
+        const a   = prev[i], b = prev[i+1];
         const sum = a + b;
         const rd  = sum >= 10 ? Math.floor(sum/10) + sum%10 : sum;
-        const mx  = (lx + rx) / 2;   // 두 원의 가운데 x
+        const result = sum >= 10 ? rd : sum;
 
-        // "a+b=sum" 먼저
-        const eq1 = `${a}+${b}=${sum}`;
+        // ① 아치 연결선 (두 원 → 가운데 아래)
+        const arcMidY = formulaY - 2;
+        await drawArcLine(ctx, lx, prevCY+R, rx, prevCY+R, midX, arcMidY);
+
+        // ② 계산식 텍스트 (중간 x, formula 영역)
+        // 각 계산식이 자기 셀 중앙에만 표시되도록 clipRect
+        const cellLeft  = midX - CELL*0.48;
+        const cellRight = midX + CELL*0.48;
+
         ctx.save();
+        ctx.beginPath();
+        ctx.rect(cellLeft, formulaY-2, cellRight-cellLeft, FORMULA_H);
+        ctx.clip();
+
         ctx.font = calcFont;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillStyle = 'rgba(255,240,245,0.88)';
-        const tw1 = ctx.measureText(eq1).width + 8;
-        roundRect(ctx, mx - tw1/2, fY, tw1, 18, 4);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(120,50,80,.72)';
-        ctx.fillText(eq1, mx, fY + 1);
-        ctx.restore();
-        await sleep(70);
 
-        if (sum >= 10) {
-          // 화살표: 계산식 오른쪽 → 결과 원 위치로
-          await drawDownArrow(ctx, mx + tw1/2 + 2, fY + 9, destX, cy - curR - 2);
-          await sleep(50);
-          // 결과 원에 rd 등장
-          drawCircleNum(ctx, destX, cy, curR, rd, 0, false, p1c, p2c, numFont);
-          await sleep(60);
-        } else {
-          // 합이 한 자리면 그냥 화살표 + 숫자
-          await drawDownArrow(ctx, mx + tw1/2 + 2, fY + 9, destX, cy - curR - 2);
-          await sleep(50);
-          drawCircleNum(ctx, destX, cy, curR, sum, 0, false, p1c, p2c, numFont);
-          await sleep(60);
-        }
-      }
-    } else {
-      // 첫 번째 행: 원만 그리기
-      for (let i = 0; i < rN; i++) {
-        const x      = rSX + i * CELL;
-        const person = seq[i]?.p || 1;
-        // 팝 효과
-        drawCircleNum(ctx, x, cy, curR * 1.3, nums[i], person, false, p1c, p2c, numFont);
+        const eq = sum >= 10 ? `${a}+${b}=${sum}` : `${a}+${b}=${sum}`;
+        const eqW = ctx.measureText(eq).width + 8;
+
+        // 배경
+        ctx.fillStyle = 'rgba(255,240,245,0.92)';
+        roundRect(ctx, midX - eqW/2, formulaY, eqW, calcFontSz+6, 4);
+        ctx.fill();
+
+        // 텍스트
+        ctx.fillStyle = 'rgba(120,50,80,.75)';
+        ctx.fillText(eq, midX, formulaY+1);
+        ctx.restore();
+
+        await sleep(65);
+
+        // ③ 화살표: 계산식 아래 → 결과 원 위 (수직!)
+        const arrowSY = formulaY + calcFontSz + 9;
+        const arrowEY = cy - curR - 3;
+        await drawStraightArrow(ctx, destX, arrowSY, destX, arrowEY);
+        await sleep(35);
+
+        // ④ 결과 원 팝 등장
+        drawCircNum(ctx, destX, cy, curR*1.22, result, 0, false, p1c, p2c,
+          `700 ${numFontSz*1.15}px 'Gaegu',cursive`);
         await sleep(45);
-        ctx.clearRect(x - curR*1.5, cy - curR*1.5, curR*3, curR*3);
-        drawCircleNum(ctx, x, cy, curR, nums[i], person, false, p1c, p2c, numFont);
+        ctx.clearRect(destX-curR*1.4, cy-curR*1.4, curR*2.8, curR*2.8);
+        drawCircNum(ctx, destX, cy, curR, result, 0, false, p1c, p2c, numFont);
         await sleep(40);
       }
     }
 
-    // 마지막 행: 결과 원들 (이미 위에서 그려짐) + = 퍼센트
+    // ── 마지막 행: 원 강조 + % 표시 ──
     if (isLast) {
-      // 마지막 원들 다시 강조해서 그리기
+      // 원 재그리기 — 팝 효과 + 잔상 완전 제거
       for (let i = 0; i < rN; i++) {
-        const x = rSX + i * CELL;
-        ctx.clearRect(x - R_LAST - 4, cy - R_LAST - 4, (R_LAST + 4)*2, (R_LAST + 4)*2);
-        // 팝
-        drawCircleNum(ctx, x, cy, R_LAST * 1.25, nums[i], 0, true, p1c, p2c,
-          `700 ${Math.max(15,R_LAST)}px 'Gaegu',cursive`);
+        const x = sx + i * CELL;
+        const pad = 6;
+        // 팝 크기
+        const popR = R_LAST * 1.15;
+        // 팝 전 영역 완전 초기화
+        ctx.clearRect(x - popR - pad, cy - popR - pad, (popR + pad)*2, (popR + pad)*2);
+        drawCircNum(ctx, x, cy, popR, nums[i], 0, true, p1c, p2c,
+          `700 ${Math.round(popR * 0.78)}px 'Gaegu',cursive`);
         await sleep(50);
-        ctx.clearRect(x - R_LAST - 4, cy - R_LAST - 4, (R_LAST + 4)*2, (R_LAST + 4)*2);
-        drawCircleNum(ctx, x, cy, R_LAST, nums[i], 0, true, p1c, p2c,
-          `700 ${Math.max(14,Math.round(R_LAST*0.85))}px 'Gaegu',cursive`);
+        // 팝 영역 완전 초기화 후 정상 크기로
+        ctx.clearRect(x - popR - pad, cy - popR - pad, (popR + pad)*2, (popR + pad)*2);
+        drawCircNum(ctx, x, cy, R_LAST, nums[i], 0, true, p1c, p2c,
+          `700 ${Math.round(R_LAST * 0.78)}px 'Gaegu',cursive`);
         await sleep(40);
       }
-      await sleep(280);
-      const pct    = nums[0] * 10 + nums[1];
-      const lastX  = rSX + (rN - 1) * CELL + R_LAST + 10;
-      const pctSize= Math.max(22, R_LAST * 1.15);
+
+      // % 텍스트: 원들 정중앙 아래에 (짤림 방지!)
+      await sleep(260);
+      const pct     = nums[0]*10 + nums[1];
+      const pctSz   = Math.max(26, Math.min(38, W * 0.09));
+      const pctY    = cy + R_LAST + pctSz * 0.7;
       ctx.save();
-      ctx.font      = `700 ${pctSize}px 'Gaegu',cursive`;
-      ctx.fillStyle = '#e8306a';
-      ctx.textAlign = 'left';
+      ctx.font         = `700 ${pctSz}px 'Gaegu',cursive`;
+      ctx.fillStyle    = '#e8306a';
+      ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(232,48,106,.45)'; ctx.shadowBlur = 10;
-      ctx.fillText(`= ${pct}%`, lastX, cy);
+      ctx.shadowColor  = 'transparent'; ctx.shadowBlur = 0;
+      // 넘치지 않도록 캔버스 너비 체크
+      const pctText = `= ${pct}%`;
+      const pctW    = ctx.measureText(pctText).width;
+      const pctX    = Math.min(W/2, W - pctW/2 - 8);
+      ctx.fillText(pctText, pctX, pctY);
       ctx.restore();
     }
   }
 }
 
+
 // 원 + 숫자 그리기
-function drawCircleNum(ctx, x, y, r, num, person, isLast, p1c, p2c, font) {
+function drawCircNum(ctx, x, y, r, num, person, isLast, p1c, p2c, font) {
   ctx.save();
+  // shadow 완전 비활성화 (번짐 잔상 방지)
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur  = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   if (isLast) {
-    const g = ctx.createRadialGradient(x,y,0,x,y,r);
-    g.addColorStop(0,'#ff6b9d'); g.addColorStop(1,'#c9304e');
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, '#ff6b9d'); g.addColorStop(1, '#c9304e');
     ctx.fillStyle = g;
-    ctx.shadowColor = 'rgba(232,48,106,.5)'; ctx.shadowBlur = 16;
-    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
   } else {
     ctx.fillStyle   = person===1?'rgba(232,48,106,.13)':person===2?'rgba(199,125,255,.13)':'rgba(255,179,204,.18)';
     ctx.strokeStyle = person===1?p1c:person===2?p2c:'rgba(255,107,157,.55)';
     ctx.lineWidth   = 1.8;
-    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill(); ctx.stroke();
   }
   ctx.font         = font;
   ctx.fillStyle    = isLast ? 'white' : (person===1?p1c:person===2?p2c:'rgba(80,30,50,.85)');
   ctx.textAlign    = 'center';
   ctx.textBaseline = 'middle';
-  ctx.shadowColor  = 'transparent'; ctx.shadowBlur = 0;
   ctx.fillText(num, x, y);
   ctx.restore();
 }
@@ -779,30 +818,36 @@ async function drawArcLine(ctx, x1, y1, x2, y2, mx, my) {
   }
 }
 
-// 화살표: (sx,sy) → (ex,ey)
-async function drawDownArrow(ctx, sx, sy, ex, ey) {
-  const steps = 14;
+// 수직 화살표 애니메이션
+async function drawStraightArrow(ctx, sx, sy, ex, ey) {
+  const steps = 12;
+  const dx = ex - sx, dy = ey - sy;
   for (let s = 1; s <= steps; s++) {
-    const t  = s / steps;
-    const cx2 = sx + (ex - sx) * t;
-    const cy2 = sy + (ey - sy) * t;
+    const t = s / steps;
     ctx.save();
-    ctx.strokeStyle = 'rgba(232,48,106,.7)';
-    ctx.lineWidth = 1.8; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(cx2, cy2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(232,48,106,.72)';
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + dx*t, sy + dy*t);
+    ctx.stroke();
     ctx.restore();
-    await sleep(10);
+    await sleep(7);
   }
   // 화살촉
+  const angle = Math.atan2(ey-sy, ex-sx);
+  const hw = 4.5;
   ctx.save();
-  ctx.fillStyle = 'rgba(232,48,106,.7)';
+  ctx.fillStyle = 'rgba(232,48,106,.82)';
   ctx.beginPath();
   ctx.moveTo(ex, ey);
-  ctx.lineTo(ex - 4, ey - 7);
-  ctx.lineTo(ex + 4, ey - 7);
+  ctx.lineTo(ex + Math.cos(angle+2.4)*hw*1.8, ey + Math.sin(angle+2.4)*hw*1.8);
+  ctx.lineTo(ex + Math.cos(angle-2.4)*hw*1.8, ey + Math.sin(angle-2.4)*hw*1.8);
   ctx.closePath(); ctx.fill();
   ctx.restore();
 }
+
+// 아치 연결선
 
 function roundRect(ctx, x, y, w, h, r) {
   if (ctx.roundRect) { ctx.roundRect(x,y,w,h,r); }
